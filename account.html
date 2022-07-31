@@ -51,9 +51,9 @@
     <script type="application/json" src="Abi.json" id="imp"></script>
   <script>
       var myaccount=localStorage.getItem("myaddress");
-//var myaccount='0xf6dBe0A8A5622216C3748e1152fE9C2Ca8c4b24d';
+
       let abi=  < ! ╌  Copy Paste ABI ╌>;
-        let contractAddress=< ! ╌  Copy Paste ABI ╌>;;
+        let contractAddress=< ! ╌  Copy Paste Contract Address ╌>;;
 
 
       // onstart
@@ -73,15 +73,13 @@
     }
     function addMessages(a)
     {
-     // var a=event.target;
+    
         var id="messagepart"+a.id;
          
         
-        
-      //  let Web3=require("web3");
+     
         let web3=new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
         let mycontract=new web3.eth.Contract(abi,contractAddress);
-       // console.log(a.id);
         mycontract.getPastEvents('message',{
         fromBlock:0,
         toBlock:'latest',
@@ -92,9 +90,7 @@
           for(var n=0;n<x;n++){
             var timestamp=0;
 
-            //console.log('Caller:'+a.id+'  MyAccount:'+myaccount);
             if( data[n].returnValues.from==a.id){
-            //console.log('FROM:'+data[n].returnValues.from+'--'+data[n].returnValues.message+'--'+data[n].returnValues.to);
             if(data[n].returnValues.to==myaccount){
               var timestamp=data[n].returnValues.time;
               var decoration='<div class="row justify-content-end">'+
