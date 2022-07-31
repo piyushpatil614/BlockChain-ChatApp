@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bootstrap demo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+</head>
+
+<body class="bg-warning">
+  <div class="container p-3">
+    <div class="row">
+      <div class="col">
+        <button onclick=back() class="btn btn-primary">Logout</button>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="container ">
+    
+      
+    
+    <div class="row p-5">
+      <div class="col">
+        <h1 style="text-align: center;">Chat App </h1>
+        <h6 style="text-align: center;">Made By piyush6140-stack</h6>
+        <h6 style="text-align: center;">Published By piyushpatil614</h6>
+
+      </div>
+    </div>
+    
+      <div class="row justify-content-end">
+      <div class="col-6">
+        <h6 style="text-align: right;" id="Profile"></h6>
+      </div>
+    </div>
+    <div class="accordion accordion-flush" id="accordionFlushExample">
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"
+    integrity="sha512-oMd9Re3VgJcXuZJn9DN6X7S7JUc7xLYZ2UyZ85Mm/xzaW3lwBr4fV2zjuu/n5jY/Of/2JOx35CTa6zvQNxb31Q=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="application/json" src="Abi.json" id="imp"></script>
+  <script>
+      var myaccount=localStorage.getItem("myaddress");
+//var myaccount='0xf6dBe0A8A5622216C3748e1152fE9C2Ca8c4b24d';
+      let abi=[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "timestamp",
+				"type": "string"
+			}
+		],
+		"name": "message",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_message",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "time",
+				"type": "string"
+			}
+		],
+		"name": "sendMessage",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+];
+        let contractAddress="0x95Bf7ca04152D06850301723C9517531b2a55D56";
+
+
+      // onstart
+    window.onload=function(){
+     //console.log(myaccount);
+     if(myaccount==null){
+      window.location.replace('select.html');
+     }
+      
+    add();
+    };
+
+    function back()
+    {
+      localStorage.removeItem("myaddress");
+      window.location.replace('select.html');
+    }
+    function addMessages(a)
+    {
+     // var a=event.target;
+        var id="messagepart"+a.id;
+         
+        
+        
+      //  let Web3=require("web3");
+        let web3=new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
+        let mycontract=new web3.eth.Contract(abi,contractAddress);
+       // console.log(a.id);
+        mycontract.getPastEvents('message',{
+        fromBlock:0,
+        toBlock:'latest',
+         
+    },function(err,data){
+        let x=data.length;
+        document.getElementById(id).innerHTML='';
+          for(var n=0;n<x;n++){
+            var timestamp=0;
+
+            //console.log('Caller:'+a.id+'  MyAccount:'+myaccount);
+            if( data[n].returnValues.from==a.id){
+            //console.log('FROM:'+data[n].returnValues.from+'--'+data[n].returnValues.message+'--'+data[n].returnValues.to);
+            if(data[n].returnValues.to==myaccount){
+              var timestamp=data[n].returnValues.time;
+              var decoration='<div class="row justify-content-end">'+
+            '<div class="col-4 col-md-auto">'+
+                '<div class="alert alert-dark" role="alert">'+
+                  data[n].returnValues.message+
+                  '<h6 style="font-size: 0.6em;">recieved '+data[n].returnValues.timestamp+'</h6>'+
+                  '</div>'+
+            '</div>'+
+          '</div>'
+            document.getElementById(id).innerHTML+=decoration;
+            }
+          }
+          if( data[n].returnValues.to==a.id){
+            if(data[n].returnValues.from==myaccount){
+              var timestamp=data[n].returnValues.time;
+               
+              var decoration='<div class="row justify-content-start">'+
+            '<div class="col-4 col-md-auto">'+
+                '<div class="alert alert-primary" role="alert">'+
+                  data[n].returnValues.message+
+                  '<h6 style="font-size: 0.6em;">send '+data[n].returnValues.timestamp+'</h6>'+
+                  '</div>'+
+            '</div>'+
+          '</div>'  
+            document.getElementById(id).innerHTML+=decoration;
+            }
+            //console.log('FROM:'+data[n].returnValues.from+'--'+data[n].returnValues.message+'--'+data[n].returnValues.to);
+            
+          }
+          
+        }
+        document.getElementById(id).innerHTML+='<div class="input-group mb-0" id="groupinputbutton'+a.id+'">'+
+              '<input type="text" class="form-control" placeholder="Type message" id="inputbutton'+a.id+'"aria-label="Recipien username" aria-describedby="button-addon2" />'+
+              '<button class="btn btn-warning" type="button" onclick=onSend(this) id="button'+a.id+'" style="padding-top: .55rem;">'+
+                'Send'+
+              '</button>'+
+            '</div>'
+            
+            
+    });
+          ;
+    }
+
+
+    function onSend(det){
+      //console.log("Press zala send by:"+det.id);
+      var message=document.getElementById("input"+det.id).value;
+      var to=det.id.split('on')[1];
+      let web3=new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
+      let mycontract=new web3.eth.Contract(abi,contractAddress);
+      var date=new Date().toLocaleDateString("IN");
+          var time=new Date().toLocaleTimeString("IN");
+          time=time.split('.')
+          var accurateTime= date+' '+time[0]+':'+time[1];
+          
+      mycontract.methods.sendMessage(to,message,accurateTime).send({from:myaccount},function(err,transcationHash){
+        if(err){
+          console.log(error);
+        }
+        else{
+
+          var decoration='<div class="row justify-content-start">'+
+            '<div class="col-4 col-md-auto">'+
+                '<div class="alert alert-primary" role="alert">'+
+                  message+
+                  '<h6 style="font-size: 0.6em;">send '+accurateTime+'</h6>'+
+                  '</div>'+
+            '</div>'+
+          '</div>'
+          var buttonText=document.getElementById("groupinputbutton"+to).innerHTML;
+          document.getElementById("groupinputbutton"+to).remove();
+          //document.getElementById("button"+det.id).remove();
+            document.getElementById("messagepart"+to).innerHTML+=decoration;
+            document.getElementById("messagepart"+to).innerHTML+='<div class="input-group mb-0" id="groupinputbutton'+to+'">'+
+              '<input type="text" class="form-control" placeholder="Type message" id="inputbutton'+to+'"aria-label="Recipien username" aria-describedby="button-addon2" />'+
+              '<button class="btn btn-warning" type="button" onclick=onSend(this) id="button'+to+'" style="padding-top: .55rem;">'+
+                'Send'+
+              '</button>'+
+            '</div>' 
+            document.getElementById("groupinputbutton"+to).scrollIntoView();
+               
+        }
+      });
+//      console.log('From:'+myaccount+' message: '+message+' To: '+to);
+    }
+
+
+
+    function add() {
+      let web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
+      web3.eth.getAccounts(function (error, accounts) {
+        var n = accounts.length;
+        var temp='';
+        for(var i=0;i<n;i++)
+        {
+          if(accounts[i]==myaccount){
+            continue;
+          }
+        temp =temp+ '<div class="accordion-item p-3  border-primary bg-dark">'+
+    '<h2 class="accordion-header" id="flush-heading'+accounts[i]+'">'+
+      '<button id="'+accounts[i]+'"class="accordion-button collapsed" type="button" onclick=addMessages(this) data-bs-toggle="collapse" data-bs-target="#flush-collapse'+accounts[i]+'" aria-expanded="false" aria-controls="flush-collapse'+accounts[i]+'">'+
+        accounts[i]+
+      '</button>'+
+    '</h2>'+
+    '<div id="flush-collapse'+accounts[i]+'" class="accordion-collapse collapse" aria-labelledby="flush-heading'+accounts[i]+'" data-bs-parent="#accordionFlushExample">'+
+      '<div class="accordion-body" id="messagepart'+accounts[i]+'">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the first items accordion body.</div>'+
+    '</div>'+
+  '</div>';
+}
+
+        
+        document.getElementById("accordionFlushExample").innerHTML = temp;
+        document.getElementById("Profile").innerHTML = 'Account:'+myaccount;
+      });
+
+
+    }
+  </script>
+</body>
+
+</html>
