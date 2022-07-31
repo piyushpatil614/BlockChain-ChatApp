@@ -58,10 +58,10 @@
       crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
     <script>
-      
+      var myaccount=localStorage.getItem("myaddress");
       window.onload=function(){
      //console.log(myaccount);
-     if(localStorage.getItem("myaddress")){
+     if(myaccount!=null){
       window.location.replace('index.html');
      }
     }
